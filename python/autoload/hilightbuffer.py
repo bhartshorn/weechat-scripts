@@ -33,6 +33,9 @@
 #
 # Changelog:
 #
+# Version 0.4, 23 Feb, 2009
+#   Changed the way the script gets settings, so it actually gets settings real-time. It no longer just loads them on registration. 
+#
 # Version 0.3, 20 Feb, 2009
 #   All works as expected. Added testing popup and sound notification. Also added settings, which was a pain, but I think it works. Actually changed the version number.
 #
@@ -56,7 +59,7 @@ except:
     weechat.prnt( "", "You don't seem to have pynotify installed" )
 
 # Register with weechat
-weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.3", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
+weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.4", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
 
 # script options
 settings = {
@@ -68,29 +71,24 @@ settings = {
 	"notification_sound_cmd"	: "None",
 }
 
-setting = {"" :""}
-
 for option, default_value in settings.iteritems():
 	if weechat.config_get_plugin(option) == "":
 		weechat.config_set_plugin(option, default_value)
 
-for option in settings:
-	setting[option] = weechat.config_get_plugin(option)
-
-
 # Make new buffer for hilights if needed
-if weechat.buffer_search( "python", setting['buffer_out'] ) == "":
-	weechat.buffer_new( setting['buffer_out'], "", "" )
-	buffername = weechat.buffer_search( "python", setting['buffer_out'] )
-else: buffername = weechat.buffer_search( "python", setting['buffer_out'] )
+if weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') ) == "":
+	weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
+	buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
+else: buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
 
 
 # Hook privmsg/hilights
 weechat.hook_signal("weechat_highlight", "hilightBuffer_AddHi")
 weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv");
 
-
+# Functions
 def hilightBuffer_Popup( type, message ):
+	"""Shows a libnotify/pynotify popup notification for a privmsg/hilight. Still buggy as of 0.4 Feb 23"""
         popup = pynotify.Notification( type, message )
 	popup.show()
 	return weechat.WEECHAT_RC_OK
@@ -100,7 +98,7 @@ def hilightBuffer_AddHi( signal, message ):
 #	( fromname, seperator, toname, ufmessage ) = message.split( " ", 3 )
 #	fprint = "HILIGHT | " + fromname + ufmessage
 	weechat.prnt( buffername, message )
-	if setting['notification_popup'] == "on":
+	if weechat.config_get_plugin('notification_popup') == "on":
 		hilightBuffer_Popup( "Hilight", message )
 	return weechat.WEECHAT_RC_OK
 
@@ -110,7 +108,7 @@ def hilightBuffer_AddPriv( signal, message ):
 #	fmessage = ufmessage[1:]
 #	fprint = "PRIVMSG | " + fromname + ": " + fmessage 
 	weechat.prnt( buffername, message )
-	if setting['notification_popup'] == "on":
+	if weechat.config_get_plugin('notification_popup') == "on":
 		hilightBuffer_Popup( "Privmsg", message )
 	return weechat.WEECHAT_RC_OK
 
