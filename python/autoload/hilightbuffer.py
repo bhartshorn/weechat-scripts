@@ -49,14 +49,14 @@
 #   Prints every message in every channel to core buffer, unluding full hostname.
 
 import weechat
-try:
-    import pynotify
-    if pynotify.init("hilightbuffer"):
-        weechat.prnt( "", "pynotify was found and properly initialised. Popup notification avaliable." )
-    else:
-        weechat.prnt( "", "There was a problem initializing the pynotify module" )
-except:
-    weechat.prnt( "", "You don't seem to have pynotify installed" )
+#try:
+#    import pynotify
+#    if pynotify.init("hilightbuffer"):
+#        weechat.prnt( "", "pynotify was found and properly initialised. Popup notification avaliable." )
+#    else:
+#        weechat.prnt( "", "There was a problem initializing the pynotify module" )
+#except:
+#    weechat.prnt( "", "You don't seem to have pynotify installed" )
 
 # Register with weechat
 weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.4", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
