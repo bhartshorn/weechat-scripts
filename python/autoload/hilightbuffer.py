@@ -104,10 +104,7 @@ def hilightBuffer_AddHi( bufferp, time, tagsn, displayed, ishilight, prefix, mes
 
 def hilightBuffer_AddPriv( signal, message ):
 	"""Formats and adds private messages to hilight buffer"""
-#	( hostname, type, fromname, ufmessage ) = message.split( " ", 3 )
-#	fmessage = ufmessage[1:]
-#	fprint = "PRIVMSG | " + fromname + ": " + fmessage 
-	weechat.prnt( buffername, message )
+	weechat.prnt( buffername, "privmsg -- " + message )
 	if weechat.config_get_plugin('notification_popup') == "on":
 		hilightBuffer_Popup( "Privmsg", message )
 	return weechat.WEECHAT_RC_OK
