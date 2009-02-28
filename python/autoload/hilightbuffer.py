@@ -83,7 +83,7 @@ else: buffername = weechat.buffer_search( "python", weechat.config_get_plugin('b
 
 
 # Hook privmsg/hilights
-weechat.hook_signal("weechat_highlight", "hilightBuffer_AddHi")
+weechat.hook_print("", "", "", 1, "hilightBuffer_AddHi")
 weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv");
 
 # Functions
@@ -93,13 +93,13 @@ def hilightBuffer_Popup( type, message ):
 	popup.show()
 	return weechat.WEECHAT_RC_OK
 
-def hilightBuffer_AddHi( signal, message ):
+def hilightBuffer_AddHi( bufferp, time, tagsn, displayed, ishilight, prefix, message ):
 	"""Adds hilighted text to hilight buffer"""
-#	( fromname, seperator, toname, ufmessage ) = message.split( " ", 3 )
-#	fprint = "HILIGHT | " + fromname + ufmessage
-	weechat.prnt( buffername, message )
-	if weechat.config_get_plugin('notification_popup') == "on":
-		hilightBuffer_Popup( "Hilight", message )
+	if ishilight == "1":
+		buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]
+		weechat.prnt( buffername, buffer + " -- " + prefix + "\t"  + message )
+		if weechat.config_get_plugin('notification_popup') == "on":
+			hilightBuffer_Popup( "Hilight", message )
 	return weechat.WEECHAT_RC_OK
 
 def hilightBuffer_AddPriv( signal, message ):
