@@ -84,7 +84,7 @@ else: buffername = weechat.buffer_search( "python", weechat.config_get_plugin('b
 
 # Hook privmsg/hilights
 weechat.hook_print("", "", "", 1, "hilightBuffer_AddHi")
-weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv");
+weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv")
 
 # Functions
 def hilightBuffer_Popup( type, message ):
