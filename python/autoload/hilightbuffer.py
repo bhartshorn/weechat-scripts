@@ -98,16 +98,17 @@ def hilightBuffer_Popup( type, message ):
     popup.show()
     return weechat.WEECHAT_RC_OK
 
-def hilightBuffer_AddHi( bufferp, time, tagsn, displayed, ishilight, prefix, message ):
+def hilightBuffer_AddHi( bufferp="0", time, tagsn="0", displayed="0", ishilight="0", prefix="Script", message="No message passed - error, note timestamp" ):
     """Adds hilighted text to hilight buffer"""
     if ishilight == "1" and weechat.config_get_plugin('show_hilights') == "on":
-        buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]
+        if not buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]:
+            buffer = weechat.buffer_get_string(bufferp, "name")
         weechat.prnt( buffername, buffer + " -- " + prefix + "\t"  + message )
         if weechat.config_get_plugin('notification_popup') == "on":
             hilightBuffer_Popup( "Hilight", message )
     return weechat.WEECHAT_RC_OK
 
-def hilightBuffer_AddPriv( signal, message ):
+def hilightBuffer_AddPriv( signal, message="No message passed - error" ):
     """Formats and adds private messages to hilight buffer"""
     if weechat.config_get_plugin('show_priv_msg') == "on":
         weechat.prnt( buffername, "privmsg -- " + message )
