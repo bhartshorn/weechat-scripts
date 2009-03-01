@@ -67,23 +67,23 @@ weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.5", "WTFPL", "Listens
 
 # script options
 settings = {
-	"buffer_out"			: "hilight",
-	"show_hilights"			: "on",
-	"show_priv_msg"			: "on",
-	"notification_popup"		: "off",
-	"notification_sound"		: "off",
-	"notification_sound_cmd"	: "None",
+    "buffer_out"                : "hilight",
+    "show_hilights"             : "on",
+    "show_priv_msg"             : "on",
+    "notification_popup"        : "off",
+    "notification_sound"        : "off",
+    "notification_sound_cmd"    : "None",
 }
 
 for option, default_value in settings.iteritems():
-	if weechat.config_get_plugin(option) == "":
-		weechat.config_set_plugin(option, default_value)
+    if weechat.config_get_plugin(option) == "":
+        weechat.config_set_plugin(option, default_value)
 
 # Make new buffer for hilights if needed
 if weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') ) == "":
     weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
     buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
-else: 
+else:
     buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
 
 
@@ -114,3 +114,5 @@ def hilightBuffer_AddPriv( signal, message ):
         if weechat.config_get_plugin('notification_popup') == "on":
             hilightBuffer_Popup( "Privmsg", message )
     return weechat.WEECHAT_RC_OK
+
+# vim: ai ts=4 sts=4 et sw=4
