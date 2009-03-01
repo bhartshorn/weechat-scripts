@@ -33,6 +33,10 @@
 #
 # Changelog:
 #
+# Version 0.5, 28 Feb, 2009
+#  Commented out the import of pynotify - it was causing troubles, so visual notification will not work for now. Added channel name for hilights and "privmsg -- " in front of privmsgs.
+#  Everything still works as it should
+#
 # Version 0.4, 23 Feb, 2009
 #   Changed the way the script gets settings, so it actually gets settings real-time. It no longer just loads them on registration. 
 #
@@ -59,7 +63,7 @@ import weechat
 #    weechat.prnt( "", "You don't seem to have pynotify installed" )
 
 # Register with weechat
-weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.4", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
+weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.5", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
 
 # script options
 settings = {
@@ -89,7 +93,7 @@ weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv")
 # Functions
 def hilightBuffer_Popup( type, message ):
 	"""Shows a libnotify/pynotify popup notification for a privmsg/hilight. Still buggy as of 0.4 Feb 23"""
-        popup = pynotify.Notification( type, message )
+	popup = pynotify.Notification( type, message )
 	popup.show()
 	return weechat.WEECHAT_RC_OK
 
