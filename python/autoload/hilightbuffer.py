@@ -81,9 +81,10 @@ for option, default_value in settings.iteritems():
 
 # Make new buffer for hilights if needed
 if weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') ) == "":
-	weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
-	buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
-else: buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
+    weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
+    buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
+else: 
+    buffername = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out') )
 
 
 # Hook privmsg/hilights
@@ -92,24 +93,24 @@ weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv")
 
 # Functions
 def hilightBuffer_Popup( type, message ):
-	"""Shows a libnotify/pynotify popup notification for a privmsg/hilight. Still buggy as of 0.4 Feb 23"""
-	popup = pynotify.Notification( type, message )
-	popup.show()
-	return weechat.WEECHAT_RC_OK
+    """Shows a libnotify/pynotify popup notification for a privmsg/hilight. Still buggy as of 0.4 Feb 23"""
+    popup = pynotify.Notification( type, message )
+    popup.show()
+    return weechat.WEECHAT_RC_OK
 
 def hilightBuffer_AddHi( bufferp, time, tagsn, displayed, ishilight, prefix, message ):
-	"""Adds hilighted text to hilight buffer"""
-	if ishilight == "1":
-		buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]
-		weechat.prnt( buffername, buffer + " -- " + prefix + "\t"  + message )
-		if weechat.config_get_plugin('notification_popup') == "on":
-			hilightBuffer_Popup( "Hilight", message )
-	return weechat.WEECHAT_RC_OK
+    """Adds hilighted text to hilight buffer"""
+    if ishilight == "1" and weechat.config_get_plugin('show_hilights') == "on":
+        buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]
+        weechat.prnt( buffername, buffer + " -- " + prefix + "\t"  + message )
+        if weechat.config_get_plugin('notification_popup') == "on":
+            hilightBuffer_Popup( "Hilight", message )
+    return weechat.WEECHAT_RC_OK
 
 def hilightBuffer_AddPriv( signal, message ):
-	"""Formats and adds private messages to hilight buffer"""
-	weechat.prnt( buffername, "privmsg -- " + message )
-	if weechat.config_get_plugin('notification_popup') == "on":
-		hilightBuffer_Popup( "Privmsg", message )
-	return weechat.WEECHAT_RC_OK
-
+    """Formats and adds private messages to hilight buffer"""
+    if weechat.config_get_plugin('show_priv_msg') == "on":
+        weechat.prnt( buffername, "privmsg -- " + message )
+        if weechat.config_get_plugin('notification_popup') == "on":
+            hilightBuffer_Popup( "Privmsg", message )
+    return weechat.WEECHAT_RC_OK
