@@ -51,22 +51,10 @@
 # Version 0.1, 02 Feb, 2009
 #   Initial work is started - succesfully prints test string to root buffer
 #   Prints every message in every channel to core buffer, unluding full hostname.
-
 import weechat
-#try:
-#    import pynotify
-#    if pynotify.init("hilightbuffer"):
-#        weechat.prnt( "", "pynotify was found and properly initialised. Popup notification avaliable." )
-#    else:
-#        weechat.prnt( "", "There was a problem initializing the pynotify module" )
-#except:
-#    weechat.prnt( "", "You don't seem to have pynotify installed" )
 
 # Register with weechat
 weechat.register( "hilightbuffer", "Brandon Hartshorn", "0.5", "WTFPL", "Listens for hilights on all your channels and writes them to a common hilight buffer", "", "" )
-
-# Set on, off as boolean values for weechat config ease of use
-on, off = True, False
 
 # script options
 settings = {
@@ -76,49 +64,53 @@ settings = {
     "notification_popup"        : "off",
     "notification_sound"        : "off",
     "notification_sound_cmd"    : "None",
+    "debug"                     : "off",
 }
 
-for option, default_value in settings.iteritems():
-    if not weechat.config_get_plugin(option):
+# Init everythin
+for option, default_value in settings.items():
+    if weechat.config_get_plugin(option) == "":
         weechat.config_set_plugin(option, default_value)
 
-# Make new buffer for hilights if needed
-if not weechat.buffer_search("python", weechat.config_get_plugin('buffer_out')):
+if weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out')) == "":
     weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
-    buffername = weechat.buffer_search("python", weechat.config_get_plugin('buffer_out'))
+    bufferpointer = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out'))
 else:
-    buffername = weechat.buffer_search("python", weechat.config_get_plugin('buffer_out'))
+    bufferpointer = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out'))
 
 # Hook privmsg/hilights
-weechat.hook_print("", "", "", 1, "hilightBuffer_AddHi")
-weechat.hook_signal("weechat_pv", "hilightBuffer_AddPriv")
+weechat.hook_print("", "", "", 0, "hilightAddHi")
+weechat.hook_signal("weechat_pv", "hilightAddPriv")
+weechat.hook_signal("buffer_closed", "hilightCheckBuffer")
 
 # Functions
-def hilightBuffer_Popup(type, message):
-    """Shows a libnotify/pynotify popup notification for a privmsg/hilight. Still buggy as of 0.4 Feb 23"""
-    popup = pynotify.Notification( type, message )
-    popup.show()
+# Make new buffer for hilights if needed
+def hilightCheckBuffer( signal, pointer ):
+    global bufferpointer
+    if pointer == bufferpointer:
+        weechat.prnt("", "Alright, who closed the buffer?!?!")
+        weechat.buffer_new( weechat.config_get_plugin('buffer_out'), "", "" )
+        bufferpointer = weechat.buffer_search( "python", weechat.config_get_plugin('buffer_out'))
+
     return weechat.WEECHAT_RC_OK
 
-def hilightBuffer_AddHi(bufferp="None", time="None", tagsn="None", displayed="None", ishilight="None", prefix="Script", message="No message passed - error, note timestamp"):
+def hilightAddHi( bufferp, uber_empty, tagsn, isdisplayed, ishilight, prefix, message ):
     """Adds hilighted text to hilight buffer"""
-    if ishilight == "1" and weechat.config_get_plugin('show_hilights'):
-        if weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]:
-            buffer = weechat.buffer_get_string(bufferp, "name").rsplit(".", 1)[1]
-        else:
+    if ishilight == "1" and weechat.config_get_plugin('show_hilights') == "on":
+        if not weechat.buffer_get_string(bufferp, "short_name"):
             buffer = weechat.buffer_get_string(bufferp, "name")
+        else:
+            buffer = weechat.buffer_get_string(bufferp, "short_name")
 
-        weechat.prnt( buffername, buffer + " -- " + prefix + "\\t"  + message )
-        if weechat.config_get_plugin('notification_popup'):
-            hilightBuffer_Popup( "Hilight", message )
+        weechat.prnt( bufferpointer, buffer + " -- " + prefix + "\t"  + message )
+
     return weechat.WEECHAT_RC_OK
 
-def hilightBuffer_AddPriv(signal, message="No message passed - error"):
+def hilightAddPriv( signal, message ):
     """Formats and adds private messages to hilight buffer"""
-    if weechat.config_get_plugin('show_priv_msg'):
-        weechat.prnt( buffername, "privmsg -- " + message )
-        if weechat.config_get_plugin('notification_popup'):
-            hilightBuffer_Popup( "Privmsg", message )
+    if weechat.config_get_plugin('show_priv_msg') == "on":
+        weechat.prnt( bufferpointer, "privmsg -- " + message )
+
     return weechat.WEECHAT_RC_OK
 
 # vim: ai ts=4 sts=4 et sw=4
