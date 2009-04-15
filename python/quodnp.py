@@ -28,12 +28,12 @@ SCRIPT_VERSION = "0.4"
 SCRIPT_LICENSE = "GPL2"
 SCRIPT_DESC    = "Full control of Quodlibet from Weechat"
 
-SHELL_CMD      = "quodnp"
+SCRIPT_COMMAND = "quodnp"
 
 if weechat.register(SCRIPT_NAME, SCRIPT_AUTHOR, SCRIPT_VERSION, SCRIPT_LICENSE,
                     SCRIPT_DESC, "", ""):
     weechat.hook_command(
-        SHELL_CMD,
+        SCRIPT_COMMAND,
         "Control of Quodlibet in Weechat",
         "np | next | prev | play-pause",
         "            np: print song now playing to current buffer\n"
@@ -75,19 +75,23 @@ def quodlibet_nowplaying(buffer):
         weechat.command(weechat.current_buffer(), (format_output(weechat.config_get_plugin("np_format"), values)))
         open_file.close()
     else:
-        weechat.prnt("", "Error opening " + current_file + "Are you sure Quodlibet is running?")
+        weechat.prnt("", "Error opening " + current_file + ". Are you sure Quodlibet is running?")
 
     ouput = format_output(weechat.config_get_plugin("np_format"), values)
 
 def quodlibet_control(action):
     control_file = os.path.expanduser("~/.quodlibet/control")
-    mode = os.stat(control_file)[ST_MODE]
-    if S_ISFIFO(mode):
-        open_file = open(control_file, "w")
-        open_file.write(action)
-        open_file.close()
-    else:
-        weechat.prnt("", "Error opening " + control_file + "Are you sure Quodlibet is running?")
+    error = "Error opening " + control_file + ". Are you sure Quodlibet is running?"
+    try:
+        mode = os.stat(control_file)[ST_MODE]
+        if S_ISFIFO(mode):
+            open_file = open(control_file, "w")
+            open_file.write(action)
+            open_file.close()
+        else:
+            weechat.prnt("", error)
+    except:
+        weechat.prnt("", error)
 
 def format_output(format, values):
   out = ""
@@ -106,7 +110,7 @@ findvar = re.compile(r'[^\\]\$([a-z_]+)(\b|[^a-z_])')
 def command_handle(buffer, args):
     largs = args.split(" ")
     if len(largs) > 1:
-        weechat.prnt("", "This script can only use 1 argument at a time, see /help quodlibet if you need help")
+        weechat.prnt("", "This script can only use 1 argument at a time, see /help " + SCRIPT_COMMAND + " if you need help")
     elif largs[0] in ("next", "prev", "play-pause"):
         quodlibet_control(largs[0])
     elif largs[0] == "np":
@@ -115,7 +119,5 @@ def command_handle(buffer, args):
         if weechat.config_get_plugin("autonp") == "on":
             quodlibet_nowplaying(buffer)
         else:
-            weechat.prnt("", "No action specified, see /help quodlibet if you need help")
+            weechat.prnt("", "No action specified, see /help " + SCRIPT_COMMAND + " if you need help")
     return weechat.WEECHAT_RC_OK
-
-
