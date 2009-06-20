@@ -61,10 +61,5 @@ def show_notification(chan,message):
         wn.show()
     except:
         weechat.prnt("", error)
-        if pynotify.is_initted():
-            pynotify.uninit()
-            weechat.prnt("", "Debug")
-        pynotify.init("wee-notifier")
-
 
 # vim: ai ts=4 sts=4 et sw=4
